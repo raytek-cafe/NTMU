@@ -33,18 +33,12 @@
     grid-template-columns: 156px 156px 156px 156px;
 }
 
-.pack {
-    margin-bottom: 12px;;
-}
-
 .pack-thumb {
     width: 150px;
     height: 125px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px dashed lightgrey;
-    margin-bottom: 4px;
 }
 
 .pack-thumb img {
