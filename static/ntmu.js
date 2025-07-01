@@ -91,7 +91,7 @@ let page = {
 
         switch (urlParts[0])
         {
-            case "packs":
+            case "":
                 document.querySelector(`.filter-link[data-value="new"]`).classList.add("selected");
                 sort("new");
                 break;
