@@ -7,5 +7,14 @@
             "display": "ImSwordQueen"
         },
         "date": "2025/05/26 01:00"
+    },
+	    {
+        "id": "classicuac",
+        "name": "Classic UAC (Fixed Version)",
+        "author": {
+            "username": "ImSwordQueen",
+            "display": "ImSwordQueen"
+        },
+        "date": "2025/05/26 01:00"
     }
 ]
