@@ -1,5 +1,5 @@
-const DATESTR_LOCALE = "ja-JP"; // YYYY/MM/DD
-const DATESTR_CONFIG = {
+var DATESTR_LOCALE = "ja-JP"; // YYYY/MM/DD
+var DATESTR_CONFIG = {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -7,105 +7,160 @@ const DATESTR_CONFIG = {
     minute: "numeric"
 };
 
-function dateStrFromUTC(dateStr)
-{
-    let date = new Date(dateStr + " UTC");
-    let config = DATESTR_CONFIG;
-    config.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return date.toLocaleString(DATESTR_LOCALE, config);
+function dateStrFromUTC(dateStr) {
+    var date = new Date(dateStr + " UTC");
+    // Fallback for date formatting in IE
+    return date.getFullYear() + '/' + 
+           ('0' + (date.getMonth() + 1)).slice(-2) + '/' + 
+           ('0' + date.getDate()).slice(-2) + ' ' + 
+           ('0' + date.getHours()).slice(-2) + ':' + 
+           ('0' + date.getMinutes()).slice(-2);
 }
 
-let page = {
-    onHashChange()
-    {
-        let hash = location.hash.replace(/^#!\//, "");
-        let parts = hash.split("/");
+var isIE = /MSIE|Trident/.test(window.navigator.userAgent);
+
+var page = {
+    onHashChange: function() {
+        var hash = location.hash.replace(/^#!\//, "");
+        var parts = hash.split("/");
         this.navigate(parts);
     },
 
-    async navigate(urlParts)
-    {
-        let pageContent = document.getElementById("page-content");
-        let spinner = document.getElementById("spinner");
+    navigate: function(urlParts) {
+        var pageContent = document.getElementById("page-content");
+        var spinner = document.getElementById("spinner");
 
         pageContent.innerHTML = "";
         pageContent.hidden = true;
         spinner.hidden = false;
 
-        let template = "404";
-        let data = {};
-        switch (urlParts[0])
-        {
+        var template = "404";
+        var data = {};
+        var self = this; // Preserve context for async functions
+
+        switch (urlParts[0]) {
             case "":
-            {
                 template = "home";
-                let packs = await (await fetch(`data/packs.json?t=${Date.now()}`)).json();
-                for (let pack of packs)
-                {
-                    pack.date = dateStrFromUTC(pack.date);
-                }
-                data.packs = packs;
+                this.loadData("data/packs.json?t=" + Date.now(), function(packs) {
+                    for (var i = 0; i < packs.length; i++) {
+                        packs[i].date = dateStrFromUTC(packs[i].date);
+                    }
+                    data.packs = packs;
+                    self.renderTemplate(template, data);
+                }, function() {
+                    self.renderTemplate(template, data);
+                });
                 break;
-            }
+
             case "pack":
-            {
-                let id = urlParts[1];
-                if (id === "" || id === undefined)
-                    break;
+                var id = urlParts[1];
+                if (id === "" || id === undefined) break;
 
-                let r = await fetch(`data/${id}/pack.json?t=${Date.now()}`);
-                if (r.status != 200)
-                    break;
+                this.loadData("data/" + id + "/pack.json?t=" + Date.now(), function(json) {
+                    data.pack = json;
+                    data.pack.id = id;
 
-                let json;
-                try
-                {
-                    json = await r.json();
-                } catch (e) { break; }
+                    self.loadText("data/" + id + "/README.md?t=" + Date.now(), function(text) {
+                        var parser = new commonmark.Parser();
+                        var renderer = new commonmark.HtmlRenderer();
+                        var parsed = parser.parse(text);
+                        data.pack.readme = renderer.render(parsed);
 
-                data.pack = json;
-                data.pack.id = id;
-
-                let rr = await fetch(`data/${id}/README.md?t=${Date.now()}`);
-                if (rr.status == 200)
-                {
-                    let parser = new commonmark.Parser();
-                    let renderer = new commonmark.HtmlRenderer();
-                    let parsed = parser.parse(await rr.text());
-                    data.pack.readme = renderer.render(parsed);
-                }
-
-                for (let version of data.pack.versions)
-                {
-                    version.date = dateStrFromUTC(version.date);
-                }
-    
-                template = "pack";
+                        for (var j = 0; j < data.pack.versions.length; j++) {
+                            data.pack.versions[j].date = dateStrFromUTC(data.pack.versions[j].date);
+                        }
+                        template = "pack";
+                        self.renderTemplate(template, data);
+                    }, function() {
+                        self.renderTemplate("404", {});
+                    });
+                }, function() {
+                    self.renderTemplate("404", {});
+                });
                 break;
-            }
         }
+    },
+
+    loadData: function(url, successCallback, errorCallback) {
+        if (isIE) {
+            // Use XMLHttpRequest for IE
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    successCallback(JSON.parse(xhr.responseText));
+                } else {
+                    errorCallback();
+                }
+            };
+            xhr.onerror = function() {
+                errorCallback();
+            };
+            xhr.send();
+        } else {
+            // Use fetch for modern browsers
+            fetch(url)
+                .then(function(response) {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(successCallback)
+                .catch(errorCallback);
+        }
+    },
+
+    loadText: function(url, successCallback, errorCallback) {
+        if (isIE) {
+            // Use XMLHttpRequest for IE
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    successCallback(xhr.responseText);
+                } else {
+                    errorCallback();
+                }
+            };
+            xhr.onerror = function() {
+                errorCallback();
+            };
+            xhr.send();
+        } else {
+            // Use fetch for modern browsers
+            fetch(url)
+                .then(function(response) {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.text();
+                })
+                .then(successCallback)
+                .catch(errorCallback);
+        }
+    },
+
+    renderTemplate: function(template, data) {
+        var pageContent = document.getElementById("page-content");
+        var spinner = document.getElementById("spinner");
 
         pageContent.innerHTML = nunjucks.render(template + ".html", data);
         pageContent.hidden = false;
         spinner.hidden = true;
 
-        switch (urlParts[0])
-        {
-            case "":
-                document.querySelector(`.filter-link[data-value="new"]`).classList.add("selected");
-                sort("new");
-                break;
+        if (data.packs) {
+            var filterLink = document.querySelector('.filter-link[data-value="new"]');
+            if (filterLink) {
+                filterLink.classList.add("selected");
+            }
+            sort("new");
         }
     },
 
-    init()
-    {
-        nunjucks.configure("templates", {
-            web: { useCache: true }
-        });
-        window.addEventListener("hashchange", this.onHashChange.bind(this));
-        this.onHashChange();
-    }
+init: function() {
+    nunjucks.configure("templates", {
+        web: { useCache: true }
+    });
+    window.addEventListener("hashchange", this.onHashChange.bind(this));
+    this.onHashChange();
+}
 };
 
 page.init();
