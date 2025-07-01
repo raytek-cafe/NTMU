@@ -1,42 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta content="raytek.cafe NTMU Packs" property="og:title">
-        <meta content="." property="og:description">
-        <meta content="/static/logo48.png" property="og:image">
-        <meta content="summary" name="twitter:card">
-        <meta content="raytek.cafe NTMU Packs" property="twitter:title">
-        <meta content="." property="twitter:description">
-        <meta content="/static/logo48.png" property="twitter:image">
-        <title>raytek.cafe NTMU Packs</title>
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-        <link rel="stylesheet" href="static/ntmu.css">
-        <link rel="stylesheet" href="static/packs.css">
-        <link rel="stylesheet" href="static/pack.css">
-    </head>
-    <div id="root">
-        <div id="header">
-            <div id="header-logo">
-                <a href="#!/">
-                    <div id="header-logo-img"></div>
-                </a>
-                <a href="#!/" id="header-logo-link">
-                    raytek.cafe NTMU Packs
-                </a>
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/style.css" type="text/css" />
+    <title>NTMU Packs - raytek.cafe</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="gap">&nbsp;</div>
+      <div class="page-container">
+        <div class="page">
+          <div class="header">
+            <span class="title"><a href="index.html">raytek.cafe</a></span>
+            <span class="subtitle">making tech fun again</span>
+            <span class="header-right">&nbsp;</span>
+          </div>
+          <div class="navbar">
+            <a href="/index.html">home</a>
+            <a href="/about.html">about</a>
+            <a href="/projects.html">projects</a>
+            <a href="/contact.html">contact</a>
+            <button id="theme-switcher">
+              <img src="/styles/img/theme-switcher.png" alt="Toggle theme" />
+            </button>
+          </div>
+          <div class="player">
+            <audio id="audio">
+              <source
+                src="/audio/PlayStation_Core_v2-IRLCOMPLEX.mp3"
+                type="audio/mpeg"
+              />
+            </audio>
+            <button id="play-pause">⏵</button>
+            <input
+              type="range"
+              id="seekbar"
+              value="0"
+              min="0"
+              max="100"
+              step="1"
+            />
+            <input
+              type="range"
+              id="volume-slider"
+              value="100"
+              min="0"
+              max="100"
+              step="1"
+            />
+          </div>
+          <div class="content">
+			<div id="root">
+				<div id="page">
+					<div id="page-content"></div>
+					<div id="spinner">
+					<span>Just a Moment...</span>
+					</div>
+				</div>
+			</div>
+          </div>
+          <div class="footer">
+            <p>Site design is &copy 2025 amaryllidinae_</p>
+            <p>
+              Star us on
+              <a
+                target="_blank"
+                class="link"
+                href="https://github.com/raytek-cafe"
+                >GitHub</a
+              >
+            </p>
+          </div>
         </div>
-        <div id="page">
-            <div id="page-content"></div>
-            <div id="spinner">
-                <span>Just a Moment...</span>
-            </div>
-        </div>
-        <hr>
-        <div id="footer">&copy; 2025 <a href="https://aubymori.github.io/">aubymori - Website template</a></div>
+      </div>
+      <div class="gap">&nbsp;</div>
     </div>
-    <script src="static/nunjucks.min.js"></script>
+    <script src="/scripts/script.js" defer></script>
+	<!-- 
+	TODO:
+	Work in progress 
+	I have to make this work with the website layout-->
+	<script src="static/nunjucks.min.js"></script>
     <script src="https://unpkg.com/commonmark@0.31.2/dist/commonmark.js"></script>
-    <script src="static/ntmu.js"></script>
-    <script src="static/packs.js"></script>
+	<link rel="stylesheet" href="static/packs.css">
+    <link rel="stylesheet" href="static/pack.css">
+  </body>
 </html>
