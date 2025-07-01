@@ -37,47 +37,6 @@ let page = {
         switch (urlParts[0])
         {
             case "":
-                template = "home";
-                break;
-            case "download":
-            {
-                template = "download";
-                let r = await fetch(`https://api.github.com/repos/get-ntmu/NTMU/releases?t=${Date.now()}`);
-                if (r.status != 200)
-                    break;
-
-                let json;
-                try
-                {
-                    json = await r.json();
-                } catch (e) { break; }
-
-                data.releases = [];
-                for (const release of json)
-                {
-                    let rdata = {};
-                    rdata.name = release.name;
-                    rdata.url = release.html_url;
-                    rdata.date =
-                        new Date(release.published_at).toLocaleDateString(
-                            DATESTR_LOCALE,
-                            DATESTR_CONFIG
-                        );
-                    for (const asset of release.assets)
-                    {
-                        switch (asset.name)
-                        {
-                            case "NTMU-x64.zip":
-                                rdata.download_x64 = asset.browser_download_url;
-                                break;
-                        }
-                    }
-                    data.releases.push(rdata);
-                }
-
-                break;
-            }
-            case "packs":
             {
                 template = "packs";
                 let packs = await (await fetch(`data/packs.json?t=${Date.now()}`)).json();
