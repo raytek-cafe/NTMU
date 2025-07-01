@@ -52,34 +52,37 @@ var page = {
                 });
                 break;
 
-            case "pack":
-                var id = urlParts[1];
-                if (id === "" || id === undefined) break;
+			case "pack":
+				var id = urlParts[1];
+				if (id === "" || id === undefined) break;
 
-                this.loadData("data/" + id + "/pack.json?t=" + Date.now(), function(json) {
-                    data.pack = json;
-                    data.pack.id = id;
+			this.loadData("data/" + id + "/pack.json?t=" + Date.now(), function(json) {
+				data.pack = json;
+				data.pack.id = id;
 
-                    self.loadText("data/" + id + "/README.md?t=" + Date.now(), function(text) {
-                        var parser = new commonmark.Parser();
-                        var renderer = new commonmark.HtmlRenderer();
-                        var parsed = parser.parse(text);
-                        data.pack.readme = renderer.render(parsed);
+			self.loadText("data/" + id + "/README.md?t=" + Date.now(), function(text) {
+				if (!isIE) {
+					// Only use commonmark if not in IE
+					var parser = new commonmark.Parser();
+					var renderer = new commonmark.HtmlRenderer();
+					var parsed = parser.parse(text);
+					data.pack.readme = renderer.render(parsed);
+				} else {
+					// Fallback for IE: just use the raw text or a simple conversion
+					data.pack.readme = text.replace(/\n/g, "<br>"); // Simple line break conversion
+				}
 
-                        for (var j = 0; j < data.pack.versions.length; j++) {
-                            data.pack.versions[j].date = dateStrFromUTC(data.pack.versions[j].date);
-                        }
-                        template = "pack";
-                        self.renderTemplate(template, data);
-                    }, function() {
-                        self.renderTemplate("404", {});
-                    });
-                }, function() {
-                    self.renderTemplate("404", {});
-                });
-                break;
-        }
-    },
+				for (var j = 0; j < data.pack.versions.length; j++) {
+					data.pack.versions[j].date = dateStrFromUTC(data.pack.versions[j].date);
+				}
+				template = "pack";
+				self.renderTemplate(template, data);
+			}, function() {
+				self.renderTemplate("404", {});
+        });
+    }, function() {
+			self.renderTemplate("404", {});
+		});
 
     loadData: function(url, successCallback, errorCallback) {
         if (isIE) {
