@@ -38,7 +38,7 @@ let page = {
         {
             case "":
             {
-                template = "packs";
+                template = "home";
                 let packs = await (await fetch(`data/packs.json?t=${Date.now()}`)).json();
                 for (let pack of packs)
                 {
