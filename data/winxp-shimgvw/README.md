@@ -1,1 +1,0 @@
-This pack brings Windows XP image viewer. en-US/es-ES only.

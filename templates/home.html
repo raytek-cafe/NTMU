@@ -1,5 +1,5 @@
+<h1>Packs</h1>
 <p>
-    <img src="static/preview.png" width="300" style="float: right; margin-left: 4px">
     The Windows NT Modding Utility (NTMU) is a program that allows users to quickly
     patch and replace files in order to theme their system. NTMU can be used to automate
     the modification of resources in files on the user's system, including operating
@@ -10,55 +10,47 @@
     change in order to configure the theme pack to their liking before applying the pack
     to their system.
 </p>
-<p>
-    This program is meant to act as a replacement to the Se7en Theme Source Patcher (7TSP),
-    as well as a way to automate other tedious patches to modified Windows systems.
-    Here is a table comparing the two programs:
-</p>
-<table>
-    <tbody>
-        <tr>
-            <th>Feature</th>
-            <th>7TSP</th>
-            <th>NTMU</th>
-        </tr>
-        <tr>
-            <td>Icon/resource replacement</td>
-            <td>✅</td>
-            <td>✅</td>
-        </tr>
-        <tr>
-            <td>Direct file copying</td>
-            <td>❌</td>
-            <td>✅</td>
-        </tr>
-        <tr>
-            <td>Registry importing</td>
-            <td>❌</td>
-            <td>✅</td>
-        </tr>
-        <tr>
-            <td>Author-defined options for packs</td>
-            <td>❌</td>
-            <td>✅</td>
-        </tr>
-        <tr>
-            <td>Patching uxtheme.dll</td>
-            <td>✅</td>
-            <td>❌</td>
-        </tr>
-        <tr>
-            <td>Open source</td>
-            <td>❌</td>
-            <td>✅</td>
-        </tr>
-        <tr>
-            <td>Programming language</td>
-            <td>AutoIt v3</td>
-            <td>C++14</td>
-        </tr>
-    </tbody>
-</table>
-</p>
-    <a href="#!/download" id="download-link">Download Now!</a>
-</p>
+<form id="pack-search" onsubmit="event.preventDefault()">
+    <input type="text" id="pack-search-input" placeholder="Search for packs...">
+    <input type="submit" id="pack-search-submit" value="Search">
+</form>
+<div id="packs">
+    <div id="filters">
+        <div class="filter" data-filter="sort">
+            <b>Sort by:</b>
+            <a href="javascript:void(0)" class="filter-link" data-value="new">
+                Newest to oldest
+            </a>
+            <a href="javascript:void(0)" class="filter-link" data-value="old">
+                Oldest to newest
+            </a>
+            <a href="javascript:void(0)" class="filter-link" data-value="az">
+                Name (A-Z)
+            </a>
+            <a href="javascript:void(0)" class="filter-link" data-value="za">
+                Name (Z-A)
+            </a>
+        </div>
+    </div>
+    <div id="packs-content">
+        {% for pack in packs %}
+        <div class="pack" data-date="{{ pack.date }}">
+            <a href="#!/pack/{{ pack.id }}">
+                <div class="pack-thumb">
+                    <img src="data/{{ pack.id }}/thumbnail.png">
+                </div>
+            </a>
+            <a href="#!/pack/{{ pack.id }}" class="pack-title">
+                {{ pack.name }}
+            </a>
+            <div class="pack-byline">
+                <span>by</span>
+                <a href="https://github.com/{{ pack.author.username }}">
+                    {{ pack.author.display }}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        
+    </div>
+</div>
