@@ -96,114 +96,114 @@ var page = {
                         data.pack = packData;
                         data.pack.id = id;
 
-                        fetchData("data/" + id + "/README.md?t=" + Date.now(), function(readmeText) {
-                            var parser = new commonmark.Parser();
-                            var renderer = new commonmark.HtmlRenderer();
-                            var parsed = parser.parse(readmeText);
-                            data.pack.readme = renderer.render(parsed);
-                            for (var j = 0; j < data.pack.versions.length; j++) {
-                                data.pack.versions[j].date = dateStrFromUTC(data.pack.versions[j].date);
-                            }
-                            template = "pack";
+                            fetchData("data/" + id + "/README.md?t=" + Date.now(), function(readmeText) {
+                                var parser = new commonmark.Parser();
+                                var renderer = new commonmark.HtmlRenderer();
+                                var parsed = parser.parse(readmeText);
+                                data.pack.readme = renderer.render(parsed);
+                                for (var j = 0; j < data.pack.versions.length; j++) {
+                                    data.pack.versions[j].date = dateStrFromUTC(data.pack.versions[j].date);
+                                }
+                                template = "pack";
+                                self.renderTemplate(template, data);
+                            }, function() {
+                                template = "pack";
+                                self.renderTemplate(template, data);
+                            });
+                        } catch (e) {
+                            template = "error";
+                            data.message = "Failed to parse data for pack " + id;
                             self.renderTemplate(template, data);
-                        }, function() {
-                            template = "pack";
-                            self.renderTemplate(template, data);
-                        });
-                    } catch (e) {
-                        template = "error";
-                        data.message = "Failed to parse data for pack " + id;
+                        }
+                    }, function() {
+                        template = "404";
                         self.renderTemplate(template, data);
-                    }
-                }, function() {
-                    template = "404";
-                    self.renderTemplate(template, data);
-                });
-                break;
-        }
-    },
-
-    loadData: function(url, successCallback, errorCallback) {
-        if (isIE) {
-            // Use XMLHttpRequest for IE
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    successCallback(JSON.parse(xhr.responseText));
-                } else {
-                    errorCallback();
-                }
-            };
-            xhr.onerror = function() {
-                errorCallback();
-            };
-            xhr.send();
-        } else {
-            // Use fetch for modern browsers
-            fetch(url)
-                .then(function(response) {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
-                .then(successCallback)
-                .catch(errorCallback);
-        }
-    },
-
-    loadText: function(url, successCallback, errorCallback) {
-        if (isIE) {
-            // Use XMLHttpRequest for IE
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    successCallback(xhr.responseText);
-                } else {
-                    errorCallback();
-                }
-            };
-            xhr.onerror = function() {
-                errorCallback();
-            };
-            xhr.send();
-        } else {
-            // Use fetch for modern browsers
-            fetch(url)
-                .then(function(response) {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.text();
-                })
-                .then(successCallback)
-                .catch(errorCallback);
-        }
-    },
-
-    renderTemplate: function(template, data) {
-        var pageContent = document.getElementById("page-content");
-        var spinner = document.getElementById("spinner");
-
-        pageContent.innerHTML = nunjucks.render(template + ".html", data);
-        pageContent.hidden = false;
-        spinner.hidden = true;
-
-        if (data.packs) {
-            var filterLink = document.querySelector('.filter-link[data-value="new"]');
-            if (filterLink) {
-                filterLink.classList.add("selected");
+                    });
+                    break;
             }
-            sort("new");
+        },
+
+        loadData: function(url, successCallback, errorCallback) {
+            if (isIE) {
+                // Use XMLHttpRequest for IE
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        successCallback(JSON.parse(xhr.responseText));
+                    } else {
+                        errorCallback();
+                    }
+                };
+                xhr.onerror = function() {
+                    errorCallback();
+                };
+                xhr.send();
+            } else {
+                // Use fetch for modern browsers
+                fetch(url)
+                    .then(function(response) {
+                        if (!response.ok) throw new Error("Network response was not ok");
+                        return response.json();
+                    })
+                    .then(successCallback)
+                    .catch(errorCallback);
+            }
+        },
+
+        loadText: function(url, successCallback, errorCallback) {
+            if (isIE) {
+                // Use XMLHttpRequest for IE
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        successCallback(xhr.responseText);
+                    } else {
+                        errorCallback();
+                    }
+                };
+                xhr.onerror = function() {
+                    errorCallback();
+                };
+                xhr.send();
+            } else {
+                // Use fetch for modern browsers
+                fetch(url)
+                    .then(function(response) {
+                        if (!response.ok) throw new Error("Network response was not ok");
+                        return response.text();
+                    })
+                    .then(successCallback)
+                    .catch(errorCallback);
+            }
+        },
+
+        renderTemplate: function(template, data) {
+            var pageContent = document.getElementById("page-content");
+            var spinner = document.getElementById("spinner");
+
+            pageContent.innerHTML = nunjucks.render(template + ".html", data);
+            pageContent.hidden = false;
+            spinner.hidden = true;
+
+            if (data.packs) {
+                var filterLink = document.querySelector('.filter-link[data-value="new"]');
+                if (filterLink) {
+                    filterLink.classList.add("selected");
+                }
+                sort("new");
+            }
+        },
+
+        init: function() {
+            nunjucks.configure("templates", {
+                web: { useCache: true }
+            });
+            window.addEventListener("hashchange", this.onHashChange.bind(this));
+            this.onHashChange();
         }
-    },
+    };
 
-    init: function() {
-        nunjucks.configure("templates", {
-            web: { useCache: true }
-        });
-        window.addEventListener("hashchange", this.onHashChange.bind(this));
-        this.onHashChange();
-    }
-};
-
-// Initialize the page
-page.init();
+    // Initialize the page
+    page.init();
